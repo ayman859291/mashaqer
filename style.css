@@ -11,6 +11,7 @@ body{margin:0;background:var(--bg);direction:rtl;color:#222}
 .btn{padding:8px 12px;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer}
 .btn.primary{background:var(--orange);color:#fff;border:none}
 .btn.small{padding:6px 8px;font-size:13px}
+.btn.danger{background:#fff;border:1px solid #e15b5b;color:#e15b5b}
 .muted{color:#666;font-size:13px;text-align:center;margin-top:8px}
 /* app */
 #app{display:flex;height:100vh}
@@ -39,5 +40,4 @@ h2{margin-top:0}
 .modal.show{display:flex}
 .modal-card{background:#fff;padding:16px;border-radius:10px;width:420px;box-shadow:0 8px 24px rgba(0,0,0,0.2)}
 .inline-form .btn{margin-left:6px}
-.danger{background:#fff;border:1px solid #e15b5b;color:#e15b5b}
 .small-text{font-size:13px;color:#666}

@@ -72,6 +72,8 @@ function setupUI(){
   // transactions
   document.getElementById('trans-search').addEventListener('input', transSearch);
   document.getElementById('t-save').addEventListener('click', saveTransaction);
+  document.getElementById('trans-export').addEventListener('click', exportTransactionsExcel);
+  document.getElementById('trans-print').addEventListener('click', printTransactions);
 
   // customers
   document.getElementById('cust-search').addEventListener('input', custSearch);
@@ -87,6 +89,11 @@ function setupUI(){
 
   // cash
   document.getElementById('cash-save').addEventListener('click', saveCashAdjust);
+
+  // reports
+  document.getElementById('show-trial-balance').addEventListener('click', generateTrialBalance);
+  document.getElementById('show-income-statement').addEventListener('click', generateIncomeStatement);
+  document.getElementById('show-balance-sheet').addEventListener('click', generateBalanceSheet);
 
   // settings
   document.getElementById('save-org').addEventListener('click', saveOrg);
@@ -105,7 +112,7 @@ function showView(id){
   if(id==='assets') renderAssets();
   if(id==='inventory') renderItems();
   if(id==='cash') renderCash();
-  if(id==='reports') renderReports();
+  if(id==='reports') document.getElementById('reportsContent').innerHTML = ''; // clear reports
 }
 
 // ---------- ACCOUNTS ----------
@@ -182,7 +189,7 @@ function accDelete(code){
   saveAccounts(arr);
 }
 
-function accSearch(){ const q=this.value?this.value.trim().toLowerCase() : document.getElementById('acc-search').value.trim().toLowerCase(); const nodes=document.querySelectorAll('#accountsList .tree-node'); nodes.forEach(n=> n.style.display = (!q || n.innerText.toLowerCase().includes(q)) ? 'block' : 'none'); }
+function accSearch(){ const q=this.value.trim().toLowerCase(); const nodes=document.querySelectorAll('#accountsList .tree-node'); nodes.forEach(n=> n.style.display = (!q || n.innerText.toLowerCase().includes(q)) ? 'block' : 'none'); }
 
 function exportAccountsCSV(){
   const arr = loadAccounts();
@@ -228,11 +235,11 @@ function saveTrans(arr){ localStorage.setItem(KEY.TRANS, JSON.stringify(arr)); r
 
 function openTransForm(edit=false, index=null){
   document.getElementById('transModal').classList.add('show');
+  document.getElementById('transTitle').innerText = edit ? 'تعديل قيد' : 'إضافة قيد';
   if(edit){
     editTransIndex = index;
     const t = loadTrans()[index];
     if(!t) return;
-    document.getElementById('transTitle').innerText = 'تعديل قيد';
     document.getElementById('t-entry').value = t.entry;
     document.getElementById('t-date').value = t.date;
     document.getElementById('t-desc').value = t.desc;
@@ -246,96 +253,58 @@ function openTransForm(edit=false, index=null){
   } else {
     editTransIndex = -1;
     document.getElementById('transForm').reset();
-    const next = loadTrans().length + 1;
-    document.getElementById('t-entry').value = next;
-    document.getElementById('transTitle').openAssetForm = 'إضافة قيد';
-    populateAccountSelects();
+    document.getElementById('t-entry').value = loadTrans().length + 1;
+    document.getElementById('t-date').value = new Date().toISOString().slice(0,10);
   }
 }
 function closeTransForm(){ document.getElementById('transModal').classList.remove('show'); }
-
 function saveTransaction(){
-  const entry = document.getElementById('t-entry').value.trim();
+  const entry = document.getElementById('t-entry').value;
   const date = document.getElementById('t-date').value;
   const desc = document.getElementById('t-desc').value.trim();
   const doc = document.getElementById('t-doc').value.trim();
   const debitCode = document.getElementById('t-debit').value;
   const creditCode = document.getElementById('t-credit').value;
-  const amount = parseFloat(document.getElementById('t-amount').value);
+  const amount = parseFloat(document.getElementById('t-amount').value) || 0;
   const project = document.getElementById('t-project').value.trim();
   const type = document.getElementById('t-type').value;
   const notes = document.getElementById('t-notes').value.trim();
-
-  if(!entry||!date||!desc||!debitCode||!creditCode||!amount){ alert('املأ الحقول المطلوبة'); return; }
-  if(debitCode === creditCode){ alert('الحساب المدين لا يمكن أن يساوي الحساب الدائن'); return; }
-  if(amount <= 0){ alert('المبلغ يجب أن يكون أكبر من صفر'); return; }
-
+  if(!date || !desc || !debitCode || !creditCode || amount <= 0){ alert('ادخل جميع الحقول الرئيسية'); return; }
   const arr = loadTrans();
-  const obj = {entry,date,desc,doc,debitCode,creditCode,amount,project,type,notes,createdAt:new Date().toISOString()};
-  if(editTransIndex===-1) arr.unshift(obj);
-  else { arr[editTransIndex] = obj; }
-  saveTrans(arr);
-
-  // update cash if cash account involved (1110)
-  adjustCashFromTransaction(obj, editTransIndex===-1);
-
-  closeTransForm();
+  const tx = {entry, date, desc, doc, debitCode, creditCode, amount, project, type, notes};
+  if(editTransIndex > -1) arr[editTransIndex] = tx;
+  else arr.push(tx);
+  saveTrans(arr); closeTransForm();
 }
 
 function renderTransactionsTable(){
-  const rows = loadTrans();
-  const tbody = document.querySelector('#transTable tbody');
-  tbody.innerHTML = '';
-  rows.forEach((t,i)=>{
+  const arr = loadTrans(); const tbody = document.querySelector('#transTable tbody'); tbody.innerHTML='';
+  arr.forEach((t,i)=>{
+    const debitAcc = loadAccounts().find(a=>a.code===t.debitCode);
+    const creditAcc = loadAccounts().find(a=>a.code===t.creditCode);
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${t.entry}</td><td>${t.date}</td><td>${t.desc}</td><td>${t.doc}</td>
-      <td>${t.debitCode}</td><td>${t.creditCode}</td><td>${t.amount}</td><td>${t.project}</td><td>${t.type}</td><td>${t.notes}</td>
-      <td>
-        <button class="btn small" onclick="openTransForm(true, ${i})">تعديل</button>
-        <button class="btn small danger" onclick="deleteTransaction(${i})">حذف</button>
-      </td>`;
+    tr.innerHTML = `<td>${t.entry}</td><td>${t.date}</td><td>${t.desc}</td><td>${t.doc}</td><td>${debitAcc ? debitAcc.name : ''}</td><td>${creditAcc ? creditAcc.name : ''}</td><td>${t.amount}</td><td>${t.project}</td><td>${t.type}</td><td>${t.notes}</td>
+      <td><button class="btn small" onclick="openTransForm(true,${i})">تعديل</button> <button class="btn small danger" onclick="deleteTrans(${i})">حذف</button></td>`;
     tbody.appendChild(tr);
   });
 }
-
-function deleteTransaction(i){
+function deleteTrans(i){
   if(!confirm('تأكيد حذف القيد؟')) return;
-  const arr = loadTrans(); const removed = arr.splice(i,1)[0]; saveTrans(arr);
-  // reverse cash change if needed
-  reverseCashFromTransaction(removed);
+  const arr = loadTrans(); arr.splice(i,1); saveTrans(arr);
 }
-
 function transSearch(){ const q=this.value.trim().toLowerCase(); document.querySelectorAll('#transTable tbody tr').forEach(r=> r.style.display = (!q || r.innerText.toLowerCase().includes(q)) ? '' : 'none'); }
 
-// cash adjust from transactions (simple logic: if debit is cash -> cash increases; if credit is cash -> cash decreases)
-function adjustCashFromTransaction(tx, isNew=true){
-  const cash = JSON.parse(localStorage.getItem(KEY.CASH)||'{"balance":0}');
-  // treat '1110' as cash account code (seed uses it)
-  if(tx.debitCode === '1110') cash.balance = Number(cash.balance) + Number(tx.amount);
-  if(tx.creditCode === '1110') cash.balance = Number(cash.balance) - Number(tx.amount);
-  localStorage.setItem(KEY.CASH, JSON.stringify(cash));
-  renderCash();
-}
-function reverseCashFromTransaction(tx){
-  const cash = JSON.parse(localStorage.getItem(KEY.CASH)||'{"balance":0}');
-  if(tx.debitCode === '1110') cash.balance = Number(cash.balance) - Number(tx.amount);
-  if(tx.creditCode === '1110') cash.balance = Number(cash.balance) + Number(tx.amount);
-  localStorage.setItem(KEY.CASH, JSON.stringify(cash));
-  renderCash();
-}
-
-// ---------- CUSTOMERS / RECEIVABLES ----------
+// ---------- CUSTOMERS ----------
 let editCustIndex = -1;
 function loadCustomers(){ return JSON.parse(localStorage.getItem(KEY.CUST)||'[]'); }
 function saveCustomers(arr){ localStorage.setItem(KEY.CUST, JSON.stringify(arr)); renderCustomers(); }
 
-function openCustomerForm(edit=false, index=null){
+function openCustomerForm(edit=false,index=null){
   document.getElementById('custModal').classList.add('show');
-  if(edit){ editCustIndex = index; const c = loadCustomers()[index]; document.getElementById('custTitle').innerText='تعديل العميل/المورد'; document.getElementById('c-name').value=c.name; document.getElementById('c-type').value=c.type; document.getElementById('c-phone').value=c.phone||''; }
-  else { editCustIndex=-1; document.getElementById('custForm').reset(); document.getElementById('custTitle').innerText='عميل / مورد'; }
+  if(edit){ editCustIndex=index; const c=loadCustomers()[index]; document.getElementById('c-name').value=c.name; document.getElementById('c-type').value=c.type; document.getElementById('c-phone').value=c.phone; }
+  else { editCustIndex=-1; document.getElementById('custForm').reset(); }
 }
 function closeCustForm(){ document.getElementById('custModal').classList.remove('show'); }
-
 function saveCustomer(){
   const name = document.getElementById('c-name').value.trim();
   const type = document.getElementById('c-type').value;
@@ -358,15 +327,12 @@ function renderCustomers(){
   });
 }
 function calcCustomerBalance(name){
-  // sum transactions where debit or credit involves AR (1130) or AP (2000) and description contains name? (simple)
   const trans = loadTrans();
   let bal = 0;
   trans.forEach(t=>{
     if(t.desc.includes(name) || t.project===name){
-      // if debit is 1130 (AR) -> increases receivable
       if(t.debitCode==='1130') bal += Number(t.amount);
       if(t.creditCode==='1130') bal -= Number(t.amount);
-      // for supplier (AP 2000)
       if(t.creditCode==='2000') bal -= Number(t.amount);
       if(t.debitCode==='2000') bal += Number(t.amount);
     }
@@ -483,15 +449,7 @@ function updateDashboard(){
   document.getElementById('dash-inv').innerText = loadItems().length;
 }
 
-function renderReports(){
-  const a = loadAccounts(); const t = loadTrans();
-  const cash = JSON.parse(localStorage.getItem(KEY.CASH)||'{"balance":0}');
-  const html = `<p>عدد الحسابات: ${a.length}</p><p>عدد المعاملات: ${t.length}</p><p>رصيد الصندوق: ${Number(cash.balance).toFixed(2)}</p>`;
-  document.getElementById('reportsContent').innerHTML = html;
-}
-
-// trial balance (basic)
-function generateTrialBalance(){
+function getAllBalances(){
   const accs = loadAccounts(); const trans = loadTrans();
   const balances = {};
   accs.forEach(a=> balances[a.code]=0);
@@ -501,12 +459,58 @@ function generateTrialBalance(){
     balances[t.debitCode] += Number(t.amount);
     balances[t.creditCode] -= Number(t.amount);
   });
-  let html = '<h3>ميزان المراجعة (تقريبي)</h3><table style="width:100%;border-collapse:collapse"><tr><th>كود</th><th>حساب</th><th>رصيد</th></tr>';
+  return balances;
+}
+
+function getProfit(){
+  const trans = loadTrans();
+  let revenue = 0, expense = 0;
+  trans.forEach(t => {
+    const debitAcc = loadAccounts().find(a => a.code === t.debitCode);
+    const creditAcc = loadAccounts().find(a => a.code === t.creditCode);
+    if(creditAcc && creditAcc.type === 'Revenue') revenue += Number(t.amount);
+    if(debitAcc && debitAcc.type === 'Expense') expense += Number(t.amount);
+  });
+  return revenue - expense;
+}
+
+function generateTrialBalance(){
+  const accs = loadAccounts(); const balances = getAllBalances();
+  let html = '<h3>ميزان المراجعة</h3><table class="table"><thead><tr><th>كود</th><th>حساب</th><th>رصيد</th></tr></thead><tbody>';
   for(const code in balances){
     const acc = accs.find(a=>a.code===code);
     html += `<tr><td>${code}</td><td>${acc?acc.name: ''}</td><td>${balances[code].toFixed(2)}</td></tr>`;
   }
-  html += '</table>';
+  html += '</tbody></table>';
+  document.getElementById('reportsContent').innerHTML = html;
+}
+
+function generateIncomeStatement(){
+  const trans = loadTrans();
+  let revenue = 0, expense = 0;
+  trans.forEach(t => {
+    const debitAcc = loadAccounts().find(a => a.code === t.debitCode);
+    const creditAcc = loadAccounts().find(a => a.code === t.creditCode);
+    if(creditAcc && creditAcc.type === 'Revenue') revenue += Number(t.amount);
+    if(debitAcc && debitAcc.type === 'Expense') expense += Number(t.amount);
+  });
+  const profit = revenue - expense;
+  let html = '<h3>قائمة الدخل</h3><p>الإيرادات: ' + revenue.toFixed(2) + '</p><p>المصروفات: ' + expense.toFixed(2) + '</p><p>الربح/الخسارة: ' + profit.toFixed(2) + '</p>';
+  document.getElementById('reportsContent').innerHTML = html;
+}
+
+function generateBalanceSheet(){
+  const balances = getAllBalances();
+  const accs = loadAccounts();
+  let assets = 0, liabilities = 0, equity = 0;
+  for(const code in balances){
+    const acc = accs.find(a => a.code === code);
+    if(acc.type === 'Asset') assets += balances[code];
+    if(acc.type === 'Liability') liabilities += Math.abs(balances[code]);
+    if(acc.type === 'Equity') equity += Math.abs(balances[code]);
+  }
+  equity += getProfit();
+  let html = '<h3>الميزانية</h3><p>الأصول: ' + assets.toFixed(2) + '</p><p>الخصوم: ' + liabilities.toFixed(2) + '</p><p>حقوق الملكية: ' + equity.toFixed(2) + '</p>';
   document.getElementById('reportsContent').innerHTML = html;
 }
 
@@ -534,11 +538,14 @@ function renderAll(){
 }
 
 // Helpers to expose openers to onclick in HTML
-window.openTransForm = ()=> openTransForm(false,null);
-window.openCustomerForm = ()=> openCustomerForm(false,null);
-window.openAssetForm = ()=> openAssetForm(false,null);
-window.openItemForm = ()=> openItemForm(false,null);
+window.openTransForm = (edit, i)=> openTransForm(edit, i);
+window.openCustomerForm = (edit, i)=> openCustomerForm(edit, i);
+window.openAssetForm = (edit, i)=> openAssetForm(edit, i);
+window.openItemForm = (edit, i)=> openItemForm(edit, i);
 window.openCashAdjust = (t)=> openCashAdjust(t);
+window.accEdit = (code)=> accEdit(code);
+window.accDelete = (code)=> accDelete(code);
+window.deleteTrans = (i)=> deleteTrans(i);
 
 // initial view
 function showInitial(){ showLogin(); }

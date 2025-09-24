@@ -1,29 +1,28 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>نظام محاسبي متكامل</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>النظام المحاسبي</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- LOGIN -->
+
   <div id="login-page" class="page active">
     <div class="center-card">
       <h2>🔐 تسجيل الدخول</h2>
       <form id="loginForm" class="simple-form">
-        <input id="login-username" placeholder="اسم المستخدم" required />
-        <input id="login-password" type="password" placeholder="كلمة المرور" required />
+        <input id="login-username" placeholder="اسم المستخدم" required>
+        <input id="login-password" type="password" placeholder="كلمة المرور" required>
         <div class="row">
           <button type="submit" class="btn primary">دخول</button>
           <button type="button" id="demo-btn" class="btn">تجريبي</button>
         </div>
       </form>
-      <p class="muted"> النظام المحاسبي </p>
+      <div class="muted">© النظام المحاسبي - نسخة محلية</div>
     </div>
   </div>
 
-  <!-- APP -->
   <div id="app" class="page">
     <aside class="sidebar">
       <div class="brand">النظام المحاسبي</div>
@@ -40,164 +39,164 @@
       </nav>
       <div class="sidebar-footer">
         <div id="current-user">المستخدم: -</div>
-        <div class="row">
-          <button id="logout-btn" class="btn small">تسجيل خروج</button>
-        </div>
+        <button id="logout-btn" class="btn">تسجيل خروج</button>
       </div>
     </aside>
 
     <main class="main">
-      <!-- Dashboard -->
-      <section id="dashboard" class="view active">
+      <div id="dashboard" class="view active">
         <h2>لوحة التحكم</h2>
         <div class="cards">
-          <div class="card">💰 رصيد الصندوق: <strong id="dash-cash">0</strong></div>
-          <div class="card">📈 إجمالي الإيرادات: <strong id="dash-rev">0</strong></div>
-          <div class="card">📉 إجمالي المصروفات: <strong id="dash-exp">0</strong></div>
-          <div class="card">📦 المخزون (عدد أصناف): <strong id="dash-inv">0</strong></div>
+          <div class="card">💰 رصيد الصندوق: <span id="dash-cash">0</span></div>
+          <div class="card">📈 إجمالي الإيرادات: <span id="dash-rev">0</span></div>
+          <div class="card">📉 إجمالي المصروفات: <span id="dash-exp">0</span></div>
+          <div class="card">📦 المخزون (عدد أصناف): <span id="dash-inv">0</span></div>
         </div>
-        <p class="muted">اختر من القائمة الجانبية للوصول إلى كل قسم.</p>
-      </section>
+        <p>اختر من القائمة الجانبية للوصول إلى كل قسم.</p>
+      </div>
 
-      <!-- Accounts -->
-      <section id="accounts" class="view">
+      <div id="accounts" class="view">
         <h2>📂 الدليل المحاسبي</h2>
         <div class="panel">
-          <form id="accountForm" class="inline-form">
-            <select id="acc-type">
-              <option value="Asset">أصول</option>
-              <option value="Liability">خصوم</option>
-              <option value="Equity">حقوق الملكية</option>
-              <option value="Revenue">إيرادات</option>
-              <option value="Expense">مصروفات</option>
-              <option value="Closing">ختامي</option>
-              <option value="Aux">مساعدة</option>
-            </select>
-            <input id="acc-code" placeholder="الرقم الكودي (مثال:1110)" required />
-            <input id="acc-name" placeholder="اسم الحساب" required />
-            <input id="acc-parent" placeholder="كود الحساب الأب (اختياري)" />
-            <button id="acc-add" class="btn">إضافة/حفظ</button>
-            <button id="acc-clear" type="button" class="btn">مسح</button>
-          </form>
-          <div class="tools">
-            <input id="acc-search" placeholder="🔍 بحث في الدليل" />
-            <button id="acc-export" class="btn">تصدير CSV</button>
-            <button id="acc-import-btn" class="btn">استيراد CSV</button>
-            <input id="acc-import-file" type="file" accept=".csv" style="display:none" />
-          </div>
+          <input id="acc-search" placeholder="بحث...">
+        </div>
+        <form id="accountForm" class="inline-form">
+          <input id="acc-code" placeholder="كود الحساب" required>
+          <input id="acc-name" placeholder="اسم الحساب" required>
+          <select id="acc-type">
+            <option value="Asset">أصول</option>
+            <option value="Liability">خصوم</option>
+            <option value="Equity">حقوق الملكية</option>
+            <option value="Revenue">إيرادات</option>
+            <option value="Expense">مصروفات</option>
+            <option value="Closing">ختامي</option>
+          </select>
+          <input id="acc-parent" placeholder="كود الأب (اختياري)">
+          <button id="acc-add" class="btn primary">إضافة/حفظ</button>
+          <button id="acc-clear" class="btn">مسح</button>
+        </form>
+        <div class="panel">
+          <button id="acc-export" class="btn">تصدير CSV</button>
+          <button id="acc-import-btn" class="btn">استيراد CSV</button>
+          <input id="acc-import-file" type="file" accept=".csv" style="display:none">
         </div>
         <div id="accountsList" class="tree"></div>
-      </section>
+      </div>
 
-      <!-- Transactions -->
-      <section id="transactions" class="view">
+      <div id="transactions" class="view">
         <h2>💳 المعاملات اليومية</h2>
         <div class="panel">
-          <button class="btn" onclick="openTransForm()">➕ إضافة قيد</button>
-          <input id="trans-search" placeholder="🔍 بحث في القيود" />
-          <button class="btn" onclick="exportTransactionsExcel()">تصدير Excel</button>
-          <button class="btn" onclick="printTransactions()">طباعة</button>
+          <button onclick="openTransForm(false)" class="btn primary">➕ إضافة قيد</button>
+          <input id="trans-search" placeholder="بحث...">
+          <button id="trans-export" class="btn">تصدير Excel</button>
+          <button id="trans-print" class="btn">طباعة</button>
         </div>
         <table id="transTable" class="table">
-          <thead>
-            <tr>
-              <th>#قيد</th><th>التاريخ</th><th>البيان</th><th>مستند</th>
-              <th>مدين</th><th>دائن</th><th>المبلغ</th><th>مشروع</th><th>نوع</th><th>ملاحظات</th><th>إجراءات</th>
-            </tr>
-          </thead>
+          <thead><tr><th>#قيد</th><th>التاريخ</th><th>البيان</th><th>مستند</th><th>مدين</th><th>دائن</th><th>المبلغ</th><th>مشروع</th><th>نوع</th><th>ملاحظات</th><th>إجراءات</th></tr></thead>
           <tbody></tbody>
         </table>
-      </section>
+      </div>
 
-      <!-- Receivables -->
-      <section id="receivables" class="view">
+      <div id="receivables" class="view">
         <h2>👥 الذمم (عملاء/موردون)</h2>
         <div class="panel">
-          <button class="btn" onclick="openCustomerForm()">➕ إضافة عميل/مورد</button>
-          <input id="cust-search" placeholder="🔍 بحث في العملاء/الموردين" />
+          <button onclick="openCustomerForm(false)" class="btn primary">➕ إضافة عميل/مورد</button>
+          <input id="cust-search" placeholder="بحث...">
         </div>
         <table id="custTable" class="table">
           <thead><tr><th>الاسم</th><th>نوع</th><th>الرصيد</th><th>إجراءات</th></tr></thead>
           <tbody></tbody>
         </table>
-      </section>
+      </div>
 
-      <!-- Assets -->
-      <section id="assets" class="view">
+      <div id="assets" class="view">
         <h2>🏢 الأصول الثابتة</h2>
         <div class="panel">
-          <button class="btn" onclick="openAssetForm()">➕ إضافة أصل</button>
-          <input id="asset-search" placeholder="🔍 بحث في الأصول" />
+          <button onclick="openAssetForm(false)" class="btn primary">➕ إضافة أصل</button>
+          <input id="asset-search" placeholder="بحث...">
         </div>
         <table id="assetTable" class="table">
           <thead><tr><th>كود</th><th>الاسم</th><th>تكلفة</th><th>بداية</th><th>عمر سنوي</th><th>قيمة دفترية</th><th>إجراءات</th></tr></thead>
           <tbody></tbody>
         </table>
-      </section>
+      </div>
 
-      <!-- Inventory -->
-      <section id="inventory" class="view">
+      <div id="inventory" class="view">
         <h2>📦 المخزون</h2>
         <div class="panel">
-          <button class="btn" onclick="openItemForm()">➕ إضافة صنف</button>
-          <input id="item-search" placeholder="🔍 بحث في الأصناف" />
+          <button onclick="openItemForm(false)" class="btn primary">➕ إضافة صنف</button>
+          <input id="item-search" placeholder="بحث...">
         </div>
         <table id="itemTable" class="table">
           <thead><tr><th>كود</th><th>اسم الصنف</th><th>الكمية</th><th>تكلفة الوحدة</th><th>قيمة المخزون</th><th>إجراءات</th></tr></thead>
           <tbody></tbody>
         </table>
-      </section>
+      </div>
 
-      <!-- Cash -->
-      <section id="cash" class="view">
+      <div id="cash" class="view">
         <h2>💰 الصندوق</h2>
         <div class="panel">
-          <button class="btn" onclick="openCashAdjust('in')">⬆️ إضافة نقد</button>
-          <button class="btn" onclick="openCashAdjust('out')">⬇️ سحب نقد</button>
+          <button onclick="openCashAdjust('in')" class="btn primary">⬆️ إضافة نقد</button>
+          <button onclick="openCashAdjust('out')" class="btn danger">⬇️ سحب نقد</button>
         </div>
-        <div class="panel">
-          <p>الرصيد الحالي للصندوق: <strong id="cash-balance">0</strong> </p>
-        </div>
-      </section>
+        <p>الرصيد الحالي للصندوق: <span id="cash-balance">0</span></p>
+      </div>
 
-      <!-- Reports -->
-      <section id="reports" class="view">
+      <div id="reports" class="view">
         <h2>📊 التقارير اليومية</h2>
-        <div id="reportsContent"></div>
-        <button class="btn" onclick="generateTrialBalance()">عرض ميزان المراجعة</button>
-      </section>
-
-      <!-- Settings -->
-      <section id="settings" class="view">
-        <h2>⚙️ الإعدادات</h2>
-        <label>اسم المؤسسة</label>
-        <input id="org-name" />
-        <label>العملة الافتراضية</label>
-        <input id="org-currency" placeholder="مثال: YER" />
-        <div class="row">
-          <button id="save-org" class="btn">حفظ</button>
-          <button id="reset-data" class="btn danger">مسح كل البيانات المحلية</button>
+        <div class="panel">
+          <button id="show-trial-balance" class="btn">عرض ميزان المراجعة</button>
+          <button id="show-income-statement" class="btn">عرض قائمة الدخل</button>
+          <button id="show-balance-sheet" class="btn">عرض الميزانية</button>
         </div>
-      </section>
+        <div id="reportsContent"></div>
+      </div>
+
+      <div id="settings" class="view">
+        <h2>⚙️ الإعدادات</h2>
+        <form class="simple-form">
+          <label>اسم المؤسسة</label>
+          <input id="org-name" value="مؤسستي">
+          <label>العملة الافتراضية</label>
+          <input id="org-currency" value="YER">
+          <button id="save-org" class="btn primary">حفظ</button>
+          <button id="reset-data" class="btn danger">مسح كل البيانات المحلية</button>
+        </form>
+      </div>
     </main>
   </div>
 
-  <!-- Modals: Transaction -->
+  <!-- Modals -->
   <div id="transModal" class="modal">
     <div class="modal-card">
       <h3 id="transTitle">إضافة قيد</h3>
       <form id="transForm" class="simple-form">
-        <label>رقم القيد</label><input id="t-entry" required />
-        <label>تاريخ العملية</label><input id="t-date" type="date" required />
-        <label>البيان</label><input id="t-desc" required />
-        <label>رقم المستند</label><input id="t-doc" />
-        <label>الحساب المدين</label><select id="t-debit" required></select>
-        <label>الحساب الدائن</label><select id="t-credit" required></select>
-        <label>المبلغ</label><input id="t-amount" type="number" step="0.01" required />
-        <label>المشروع / مركز التكلفة</label><input id="t-project" />
+        <label>رقم القيد</label>
+        <input id="t-entry" disabled>
+        <label>تاريخ العملية</label>
+        <input id="t-date" type="date" required>
+        <label>البيان</label>
+        <input id="t-desc" required>
+        <label>رقم المستند</label>
+        <input id="t-doc">
+        <label>الحساب المدين</label>
+        <select id="t-debit" required></select>
+        <label>الحساب الدائن</label>
+        <select id="t-credit" required></select>
+        <label>المبلغ</label>
+        <input id="t-amount" type="number" step="0.01" min="0" required>
+        <label>المشروع / مركز التكلفة</label>
+        <input id="t-project">
         <label>نوع المعاملة</label>
-        <select id="t-type"><option>إيرادات</option><option>مصروفات</option><option>بنكية</option><option>تسويات</option><option>ذمم</option></select>
-        <label>الملاحظات</label><input id="t-notes" />
+        <select id="t-type">
+          <option value="إيرادات">إيرادات</option>
+          <option value="مصروفات">مصروفات</option>
+          <option value="بنكية">بنكية</option>
+          <option value="تسويات">تسويات</option>
+          <option value="ذمم">ذمم</option>
+        </select>
+        <label>الملاحظات</label>
+        <textarea id="t-notes"></textarea>
         <div class="row">
           <button type="button" id="t-save" class="btn primary">حفظ</button>
           <button type="button" onclick="closeTransForm()" class="btn">إلغاء</button>
@@ -206,52 +205,85 @@
     </div>
   </div>
 
-  <!-- Modals: Customer -->
-  <div id="custModal" class="modal"><div class="modal-card">
-    <h3 id="custTitle">عميل / مورد</h3>
-    <form id="custForm">
-      <label>الاسم</label><input id="c-name" required />
-      <label>النوع</label><select id="c-type"><option>عميل</option><option>مورد</option></select>
-      <label>الهاتف (اختياري)</label><input id="c-phone" />
-      <div class="row"><button type="button" id="c-save" class="btn primary">حفظ</button><button type="button" onclick="closeCustForm()" class="btn">إلغاء</button></div>
-    </form>
-  </div></div>
+  <div id="custModal" class="modal">
+    <div class="modal-card">
+      <h3>عميل / مورد</h3>
+      <form id="custForm" class="simple-form">
+        <label>الاسم</label>
+        <input id="c-name" required>
+        <label>النوع</label>
+        <select id="c-type">
+          <option value="عميل">عميل</option>
+          <option value="مورد">مورد</option>
+        </select>
+        <label>الهاتف (اختياري)</label>
+        <input id="c-phone">
+        <div class="row">
+          <button type="button" id="c-save" class="btn primary">حفظ</button>
+          <button type="button" onclick="closeCustForm()" class="btn">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-  <!-- Modals: Asset -->
-  <div id="assetModal" class="modal"><div class="modal-card">
-    <h3>إضافة أصل ثابت</h3>
-    <form id="assetForm">
-      <label>كود الأصل</label><input id="a-code" required />
-      <label>الاسم</label><input id="a-name" required />
-      <label>التكلفة</label><input id="a-cost" type="number" required />
-      <label>تاريخ الشراء</label><input id="a-date" type="date" />
-      <label>عمر مفيد بالسنوات</label><input id="a-life" type="number" />
-      <div class="row"><button type="button" id="a-save" class="btn primary">حفظ</button><button type="button" onclick="closeAssetForm()" class="btn">إلغاء</button></div>
-    </form>
-  </div></div>
+  <div id="assetModal" class="modal">
+    <div class="modal-card">
+      <h3>إضافة أصل ثابت</h3>
+      <form id="assetForm" class="simple-form">
+        <label>كود الأصل</label>
+        <input id="a-code" required>
+        <label>الاسم</label>
+        <input id="a-name" required>
+        <label>التكلفة</label>
+        <input id="a-cost" type="number" step="0.01" min="0" required>
+        <label>تاريخ الشراء</label>
+        <input id="a-date" type="date">
+        <label>عمر مفيد بالسنوات</label>
+        <input id="a-life" type="number" min="1">
+        <div class="row">
+          <button type="button" id="a-save" class="btn primary">حفظ</button>
+          <button type="button" onclick="closeAssetForm()" class="btn">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-  <!-- Modals: Item -->
-  <div id="itemModal" class="modal"><div class="modal-card">
-    <h3>إضافة صنف مخزون</h3>
-    <form id="itemForm">
-      <label>كود الصنف</label><input id="i-code" required />
-      <label>اسم الصنف</label><input id="i-name" required />
-      <label>الكمية الابتدائية</label><input id="i-qty" type="number" value="0" />
-      <label>تكلفة الوحدة</label><input id="i-cost" type="number" step="0.01" value="0" />
-      <div class="row"><button type="button" id="i-save" class="btn primary">حفظ</button><button type="button" onclick="closeItemForm()" class="btn">إلغاء</button></div>
-    </form>
-  </div></div>
+  <div id="itemModal" class="modal">
+    <div class="modal-card">
+      <h3>إضافة صنف مخزون</h3>
+      <form id="itemForm" class="simple-form">
+        <label>كود الصنف</label>
+        <input id="i-code" required>
+        <label>اسم الصنف</label>
+        <input id="i-name" required>
+        <label>الكمية الابتدائية</label>
+        <input id="i-qty" type="number" min="0" required>
+        <label>تكلفة الوحدة</label>
+        <input id="i-cost" type="number" step="0.01" min="0" required>
+        <div class="row">
+          <button type="button" id="i-save" class="btn primary">حفظ</button>
+          <button type="button" onclick="closeItemForm()" class="btn">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-  <!-- Modals: Cash adjust -->
-  <div id="cashModal" class="modal"><div class="modal-card">
-    <h3 id="cashTitle">تعديل الصندوق</h3>
-    <form id="cashForm">
-      <label>النوع</label><select id="cash-type"><option value="in">إيداع</option><option value="out">سحب</option></select>
-      <label>المبلغ</label><input id="cash-amount" type="number" step="0.01" />
-      <label>البيان</label><input id="cash-desc" />
-      <div class="row"><button type="button" id="cash-save" class="btn primary">حفظ</button><button type="button" onclick="closeCashForm()" class="btn">إلغاء</button></div>
-    </form>
-  </div></div>
+  <div id="cashModal" class="modal">
+    <div class="modal-card">
+      <h3 id="cashTitle">تعديل الصندوق</h3>
+      <form id="cashForm" class="simple-form">
+        <input id="cash-type" type="hidden">
+        <label>المبلغ</label>
+        <input id="cash-amount" type="number" step="0.01" min="0" required>
+        <label>البيان</label>
+        <input id="cash-desc">
+        <div class="row">
+          <button type="button" id="cash-save" class="btn primary">حفظ</button>
+          <button type="button" onclick="closeCashForm()" class="btn">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
